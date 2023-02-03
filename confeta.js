@@ -289,6 +289,7 @@ fet.impl.Drag = function() {
 	element.style.top = '0px';
 	element.classList.add('drag-item');
 	element.classList.remove('moved-item');
+	element.dispatchEvent(new Event('dragstart'));
 	const onmove = function (state, clientY, pageY) {
 		const parent = state.element.parentElement;
 		const parentOffset = fet.impl.cumulativeOffset(parent);
@@ -328,6 +329,18 @@ fet.impl.Drag = function() {
 					newArray.splice(state.elementIndex, 1);
 					newArray.splice(index, 0, item);
 					state.object[propName] = newArray;
+					state.element.dispatchEvent(new CustomEvent('moveitem', {
+						detail: {
+							oldIndex: state.elementIndex,
+							newIndex: index
+						}
+					}));
+					child.dispatchEvent(new CustomEvent('moveitem', {
+						detail: {
+							oldIndex: index,
+							newIndex: state.elementIndex
+						}
+					}));
 					state.elementIndex = index;
 				}
 				break;
@@ -381,6 +394,7 @@ fet.impl.Drag = function() {
 		clearInterval(state.autoScrollInterval);
 		state.element.classList.remove('drag-item');
 		state.element.classList.add('moved-item');
+		state.element.dispatchEvent(new Event('dragend'));
 		setTimeout(() => {
 			state.element.style.top = '0px';
 		}, 20);
